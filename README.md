@@ -1,2 +1,0 @@
-# optimizing-solidity-contracts
-homework 
