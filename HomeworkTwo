@@ -14,13 +14,6 @@ contract Ownable {
         require(msg.sender == owner);
         _;
     }
-    
-    function transferOwnership(address newOwner) public onlyOwner {
-        require(newOwner != address(0));
-        emit OwnershipTransferred(owner, newOwner);
-        owner = newOwner;
-    }
-
 }
 
 library VotingLib {
@@ -97,26 +90,21 @@ contract Distributor is Ownable {
     
     function initialize(address[] _members, uint256[] _importances) public onlyOwner {
         require(_members.length >= 3);
+        require(_importances.length == _members.length); // This way we can be sure, that upon initiation importance will be assigned to every member.
         require(!initialized);
         initialized = true;
         
         members = _members;
         importances = _importances;
-        
+        // Single loop to fill all the necessary data.
         for(uint i = 0; i<_members.length; i++){
             importanceOfMembers[members[i]] = importances[i];
-        }
-        
-         for(uint k = 0; k<importances.length; k++){
-            totalVotes += importances[l];
-        }
-        
-        for(uint l = 0; l<_members.length; l++){
+            totalVotes += importances[i];
             isVoter[_members[i]] = true;
         }
-    }
+     }
     
-    function startVote(address _beneficiary, uint _amount) public isInit onlyVoter returns(uint){
+    function startVote(address _beneficiary, uint _amount) public isInit onlyOwner returns(uint){
         uint voteID = now;
         
         votes[voteID] = VotingLib.Vote({ID: voteID, beneficiary: _beneficiary, amount: _amount, votesFor: 0, votesAgainst: 0, target: totalVotes/2, finished: false, successful: false});
